@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>专业杠铃配重计算器</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --secondary: #3f37c9;
+            --accent: #f72585;
+            --dark: #212529;
+            --light: #f8f9fa;
+            --success: #4cc9f0;
+            --warning: #f8961e;
+            --danger: #ef233c;
+            --gray: #adb5bd;
+            --border-radius: 12px;
+            --box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            animation: fadeIn 0.8s ease;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: inline-block;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--gray);
+            font-weight: 400;
+        }
+
+        .card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: var(--transition);
+            animation: slideUp 0.6s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.6rem;
+            font-weight: 500;
+            color: var(--dark);
+            font-size: 0.95rem;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 2px solid #e9ecef;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+            background-color: white;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        button {
+            background: linear-gradient(to right, var(--primary), var(--primary-light));
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 100%;
+            margin-top: 0.5rem;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 6px rgba(67, 97, 238, 0.2);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 14px rgba(67, 97, 238, 0.3);
+            background: linear-gradient(to right, var(--primary-light), var(--primary));
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .result-card {
+            display: none;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .result-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: var(--secondary);
+        }
+
+        .badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .badge-secondary {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .badge-accent {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .plates-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin: 1.5rem 0;
+        }
+
+        .plate {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(67, 97, 238, 0.2);
+            transition: var(--transition);
+        }
+
+        .plate:hover {
+            transform: scale(1.05);
+        }
+
+        .plate:before {
+            content: "•";
+            margin-right: 0.5rem;
+            font-weight: bold;
+        }
+
+        .weight-summary {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            margin-top: 1.5rem;
+            border: 1px solid #e9ecef;
+        }
+
+        .weight-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.8rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 1px dashed #dee2e6;
+        }
+
+        .weight-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .total-weight {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--primary);
+            padding-top: 0.8rem;
+            margin-top: 0.8rem;
+            border-top: 2px solid var(--primary);
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin: 1.5rem 0;
+            font-weight: 500;
+        }
+
+        .alert-warning {
+            background: linear-gradient(135deg, #fff3bf 0%, #ffec99 100%);
+            border: 1px solid #ffd43b;
+            color: #674d00;
+        }
+
+        .alert-error {
+            background: linear-gradient(135deg, #ffc9c9 0%, #ffa8a8 100%);
+            border: 1px solid #ff6b6b;
+            color: #c92a2a;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            margin: 1.5rem 0 1rem;
+            color: var(--secondary);
+            position: relative;
+            padding-left: 1rem;
+        }
+
+        .section-title:before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: linear-gradient(to bottom, var(--primary), var(--accent));
+            border-radius: 2px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .card {
+                padding: 1.5rem;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            th, td {
+                padding: 0.8rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* 加载动画 */
+        .loader {
+            display: none;
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .loader-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(67, 97, 238, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 工具提示 */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            margin-left: 0.5rem;
+            cursor: help;
+        }
+
+        .tooltip-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            background-color: var(--gray);
+            color: white;
+            border-radius: 50%;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--dark);
+            color: white;
+            text-align: center;
+            border-radius: var(--border-radius);
+            padding: 0.5rem;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.8rem;
+            font-weight: normal;
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>专业杠铃配重计算器</h1>
+            <p class="subtitle">基于智能算法的精准配重方案 · 助力您的力量训练</p>
+        </header>
+
+        <div class="card">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="barWeight">
+                        杠铃杆重量 (kg)
+                        <span class="tooltip">
+                            <span class="tooltip-icon">?</span>
+                            <span class="tooltip-text">选择您使用的杠铃杆重量，无杆请选择0kg</span>
+                        </span>
+                    </label>
+                    <select id="barWeight">
+                        <option value="0">0 kg（无杠铃杆）</option>
+                        <option value="15">15 kg（女子杆）</option>
+                        <option value="20" selected>20 kg（标准奥杆）</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="rm">
+                        目标1RM (kg)
+                        <span class="tooltip">
+                            <span class="tooltip-icon">?</span>
+                            <span class="tooltip-text">您在该动作中能完成1次的最大重量</span>
+                        </span>
+                    </label>
+                    <input type="number" id="rm" min="1" step="0.25" value="120" required />
+                </div>
+                
+                <div class="form-group">
+                    <label for="intensity">
+                        训练强度 (%1RM)
+                        <span class="tooltip">
+                            <span class="tooltip-icon">?</span>
+                            <span class="tooltip-text">根据您的训练周期选择合适的强度百分比</span>
+                        </span>
+                    </label>
+                    <select id="intensity" required>
+                        <option value="">请选择训练强度</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button onclick="calculate()">
+                <span id="button-text">计算配重方案</span>
+                <div class="loader" id="button-loader">
+                    <div class="loader-spinner"></div>
+                </div>
+            </button>
+        </div>
+
+        <div id="result" class="card result-card"></div>
+    </div>
+
+    <script>
+        // 训练计划配置
+        const intensityPlan = [
+            { percent: 0.70, sets: 5, reps: 10, week: 1, name: "容量积累期", phase: "基础期" },
+            { percent: 0.725, sets: 4, reps: 10, week: 2, name: "容量积累期", phase: "基础期" },
+            { percent: 0.75, sets: 4, reps: 8, week: 3, name: "强度过渡期", phase: "基础期" },
+            { percent: 0.775, sets: 3, reps: 8, week: 4, name: "强度过渡期", phase: "基础期" },
+            { percent: 0.60, sets: 5, reps: 5, week: 5, name: "减载周", phase: "恢复期", deload: true },
+            { percent: 0.80, sets: 5, reps: 5, week: 6, name: "力量提升期", phase: "强化期" },
+            { percent: 0.825, sets: 5, reps: 5, week: 7, name: "力量提升期", phase: "强化期" },
+            { percent: 0.875, sets: 3, reps: 5, week: 8, name: "峰值准备期", phase: "冲刺期" },
+            { percent: 0.925, sets: 3, reps: 3, week: 9, name: "峰值准备期", phase: "冲刺期" },
+            { percent: 0.95, sets: 2, reps: 2, week: 10, name: "比赛/测试周", phase: "测试期" }
+        ];
+
+        // 配重片配置
+        const standardPlates = [25, 20, 15, 10, 5, 2.5]; // 标准片无限供应
+        const microPlates = [1, 0.5, 0.35]; // 微调片
+        const microInventory = { 1: 2, 0.5: 2, 0.35: 2 }; // 微调片库存
+
+        // 初始化强度选择器
+        const intensitySelect = document.getElementById('intensity');
+        intensityPlan.forEach(p => {
+            const option = document.createElement('option');
+            option.value = p.percent;
+            option.textContent = `${(p.percent * 100).toFixed(1)}% - ${p.name} (第${p.week}周)`;
+            if (p.percent === 0.775) option.selected = true;
+            intensitySelect.appendChild(option);
+        });
+
+        // 显示加载动画
+        function showLoading(show) {
+            const buttonText = document.getElementById('button-text');
+            const loader = document.getElementById('button-loader');
+            
+            if (show) {
+                buttonText.style.display = 'none';
+                loader.style.display = 'block';
+            } else {
+                buttonText.style.display = 'inline';
+                loader.style.display = 'none';
+            }
+        }
+
+        // 背包算法实现
+        function knapsack(target, plates, inventory) {
+            plates.sort((a, b) => b - a); // 从大到小排序
+            
+            let bestCombination = [];
+            let bestDiff = target;
+            let bestSum = 0;
+
+            function backtrack(start, remaining, path, used) {
+                const currentDiff = Math.abs(remaining);
+                if (currentDiff < bestDiff || 
+                    (currentDiff === bestDiff && path.length < bestCombination.length)) {
+                    bestDiff = currentDiff;
+                    bestCombination = [...path];
+                    bestSum = target - remaining;
+                }
+
+                for (let i = start; i < plates.length; i++) {
+                    const plate = plates[i];
+                    const maxUse = inventory[plate] || Infinity;
+                    const usedCount = used[plate] || 0;
+
+                    if (usedCount < maxUse && remaining >= plate - 0.001) {
+                        used[plate] = (used[plate] || 0) + 1;
+                        path.push(plate);
+                        backtrack(i, remaining - plate, path, used);
+                        path.pop();
+                        used[plate]--;
+                    }
+                }
+            }
+
+            backtrack(0, target, [], {});
+            return { combination: bestCombination, sum: bestSum, diff: bestDiff };
+        }
+
+        // 计算配重
+        function calculateWeight(target) {
+            // 先用标准片计算基础重量
+            let remaining = target;
+            const standardCombo = [];
+            for (const plate of standardPlates) {
+                while (remaining >= plate - 0.001) {
+                    standardCombo.push(plate);
+                    remaining -= plate;
+                }
+            }
+
+            // 剩余重量用微调片精确匹配
+            const microResult = knapsack(remaining, microPlates, microInventory);
+            
+            return {
+                combination: [...standardCombo, ...microResult.combination],
+                sum: (target - remaining) + microResult.sum,
+                diff: microResult.diff
+            };
+        }
+
+        // 保存配置到本地存储
+        function saveSettings() {
+            const settings = {
+                barWeight: document.getElementById('barWeight').value,
+                rm: document.getElementById('rm').value,
+                intensity: document.getElementById('intensity').value
+            };
+            localStorage.setItem('weightCalculatorSettings', JSON.stringify(settings));
+        }
+
+        // 从本地存储加载配置
+        function loadSettings() {
+            const saved = JSON.parse(localStorage.getItem('weightCalculatorSettings'));
+            if (saved) {
+                document.getElementById('barWeight').value = saved.barWeight || '20';
+                document.getElementById('rm').value = saved.rm || '120';
+                document.getElementById('intensity').value = saved.intensity || '0.775';
+            }
+        }
+
+        // 主计算函数
+        function calculate() {
+            showLoading(true);
+            
+            // 延迟显示结果，让加载动画可见
+            setTimeout(() => {
+                const rm = parseFloat(document.getElementById('rm').value);
+                const barWeight = parseFloat(document.getElementById('barWeight').value) || 0;
+                const percent = parseFloat(intensitySelect.value);
+                const resultDiv = document.getElementById('result');
+
+                // 验证输入
+                if (!rm || !percent) {
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-error">
+                            <strong>错误：</strong>请填写所有必填字段
+                        </div>
+                    `;
+                    resultDiv.style.display = 'block';
+                    showLoading(false);
+                    return;
+                }
+
+                const targetWeight = rm * percent;
+                if (targetWeight < barWeight) {
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-error">
+                            <strong>错误：</strong>目标重量 ${targetWeight.toFixed(2)}kg 不能小于杆重 ${barWeight}kg
+                        </div>
+                    `;
+                    resultDiv.style.display = 'block';
+                    showLoading(false);
+                    return;
+                }
+
+                const singleSideTarget = (targetWeight - barWeight) / 2;
+                const result = calculateWeight(singleSideTarget);
+                const plan = intensityPlan.find(p => p.percent === percent);
+
+                // 保存用户设置
+                saveSettings();
+
+                // 准备结果输出
+                let warning = '';
+                if (result.diff > 0.001) {
+                    warning = `
+                        <div class="alert alert-warning">
+                            <strong>注意：</strong>比理论值轻 ${result.diff.toFixed(2)}kg (理论单边: ${singleSideTarget.toFixed(2)}kg)
+                            <div style="margin-top: 0.5rem; font-size: 0.9em;">
+                                建议：${result.diff <= 0.5 ? "可接受范围内" : "考虑添加微调片或调整重量"}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // 按重量分组统计配重片
+                const plateCounts = {};
+                result.combination.forEach(plate => {
+                    plateCounts[plate] = (plateCounts[plate] || 0) + 1;
+                });
+                const plateGroups = Object.entries(plateCounts)
+                    .sort((a, b) => b[0] - a[0])
+                    .map(([weight, count]) => `${count}×${weight}kg`);
+
+                const actualTotal = barWeight + result.sum * 2;
+
+                // 训练阶段徽章颜色
+                let phaseBadgeClass = 'badge-primary';
+                if (plan.phase === "强化期") phaseBadgeClass = 'badge-secondary';
+                if (plan.phase === "冲刺期" || plan.phase === "测试期") phaseBadgeClass = 'badge-accent';
+
+                resultDiv.innerHTML = `
+                    <div class="result-title">
+                        <span>${plan.name} - 第${plan.week}周</span>
+                        <span class="badge ${phaseBadgeClass}">${plan.phase}</span>
+                    </div>
+                    
+                    <div class="section-title">训练计划</div>
+                    <table>
+                        <tr>
+                            <th>强度</th>
+                            <th>组数</th>
+                            <th>次数</th>
+                            <th>理论重量</th>
+                        </tr>
+                        <tr>
+                            <td>${(percent*100).toFixed(1)}% 1RM</td>
+                            <td>${plan.sets}组</td>
+                            <td>${plan.reps}次</td>
+                            <td>${targetWeight.toFixed(2)}kg</td>
+                        </tr>
+                    </table>
+                    
+                    ${warning}
+                    
+                    <div class="section-title">配重方案</div>
+                    <div class="plates-container">
+                        ${result.combination.sort((a,b) => b-a).map(w => `
+                            <span class="plate">${w}kg</span>
+                        `).join('')}
+                    </div>
+                    <div style="color: var(--gray); margin-top: 0.5rem; font-size: 0.9rem;">
+                        配重片组合: ${plateGroups.join(' + ')}
+                    </div>
+                    
+                    <div class="section-title">重量明细</div>
+                    <div class="weight-summary">
+                        <div class="weight-row">
+                            <span>杠铃杆重量:</span>
+                            <span>${barWeight}kg</span>
+                        </div>
+                        <div class="weight-row">
+                            <span>单边配重:</span>
+                            <span>${result.sum.toFixed(2)}kg</span>
+                        </div>
+                        <div class="weight-row">
+                            <span>单边配重 × 2:</span>
+                            <span>${(result.sum * 2).toFixed(2)}kg</span>
+                        </div>
+                        <div class="weight-row total-weight">
+                            <span>实际总重量:</span>
+                            <span>${actualTotal.toFixed(2)}kg</span>
+                        </div>
+                    </div>
+                `;
+                resultDiv.style.display = 'block';
+                showLoading(false);
+                
+                // 滚动到结果区域
+                resultDiv.scrollIntoView({ behavior: 'smooth' });
+            }, 500); // 500ms的延迟，确保加载动画可见
+        }
+
+        // 页面加载时读取设置
+        window.addEventListener('DOMContentLoaded', loadSettings);
+    </script>
+</body>
+</html>
